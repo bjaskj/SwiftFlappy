@@ -35,9 +35,16 @@ class GameScene: SKScene {
         var groundTexture = SKTexture(imageNamed: "Ground")
         groundTexture.filteringMode = .Nearest
         
+        var moveGroundSprite = SKAction.moveByX(-groundTexture.size().width, y: 0, duration: NSTimeInterval(0.01 * groundTexture.size().width))
+            
+        var resetGroundSprite = SKAction.moveByX(groundTexture.size().width, y: 0, duration: 0.0)
+        
+        var moveGroundSpritesForever = SKAction.repeatActionForever(SKAction.sequence([moveGroundSprite, resetGroundSprite]))
+        
         for var i:CGFloat = 0; i < 2 + self.frame.size.width / (groundTexture.size().width); ++i {
             var sprite = SKSpriteNode(texture: groundTexture)
             sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2)
+            sprite.runAction(moveGroundSpritesForever)
             self.addChild(sprite)
         }
         
