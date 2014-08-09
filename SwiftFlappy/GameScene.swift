@@ -15,10 +15,15 @@ class GameScene: SKScene {
     var groundTextureHeight = CGFloat()
     
     override func didMoveToView(view: SKView) {
+        setupGravity()
         setupSky()
         setupBird()
         setupGround()
         setupSkyline()
+    }
+    
+    func setupGravity() {
+        self.physicsWorld.gravity = CGVectorMake(0.0, -5.0)
     }
     
     func setupSky() {
@@ -38,6 +43,10 @@ class GameScene: SKScene {
         bird = SKSpriteNode(texture: birdTexture1)
         bird.position = CGPoint(x: self.frame.size.width / 2.8, y: CGRectGetMidY(self.frame))
         bird.runAction(flap)
+        
+        bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2.0)
+        bird.physicsBody.dynamic = true
+        bird.physicsBody.allowsRotation = false
         
         self.addChild(bird)
     }
@@ -59,6 +68,12 @@ class GameScene: SKScene {
             sprite.runAction(moveGroundSpritesForever)
             self.addChild(sprite)
         }
+        
+        var dummyGround = SKNode()
+        dummyGround.position = CGPointMake(0, groundTexture.size().height / 2)
+        dummyGround.physicsBody = SKPhysicsBody(rectangleOfSize: CGSizeMake(self.frame.size.width, groundTexture.size().height))
+        dummyGround.physicsBody.dynamic = false
+        self.addChild(dummyGround)
     }
     
     func setupSkyline() {
