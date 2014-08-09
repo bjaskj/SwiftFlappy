@@ -8,7 +8,7 @@
 
 import SpriteKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var bird = SKSpriteNode()
     var skyColor = SKColor()
@@ -17,6 +17,10 @@ class GameScene: SKScene {
     var pipeTexture1 = SKTexture()
     var pipeTexture2 = SKTexture()
     var movePipesAndRemove = SKAction()
+    
+    let birdCategory: UInt32 = 1 << 0
+    let worldCategory: UInt32 = 1 << 1
+    let pipeCategory: UInt32 = 1 << 2
     
     override func didMoveToView(view: SKView) {
         setupGravity()
@@ -29,6 +33,7 @@ class GameScene: SKScene {
     
     func setupGravity() {
         self.physicsWorld.gravity = CGVectorMake(0.0, -5.0)
+        self.physicsWorld.contactDelegate = self
     }
     
     func setupSky() {
@@ -52,6 +57,10 @@ class GameScene: SKScene {
         bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2.0)
         bird.physicsBody.dynamic = true
         bird.physicsBody.allowsRotation = false
+        
+        bird.physicsBody.categoryBitMask = birdCategory
+        bird.physicsBody.collisionBitMask = worldCategory | pipeCategory
+        bird.physicsBody.contactTestBitMask = worldCategory | pipeCategory
         
         self.addChild(bird)
     }
@@ -78,6 +87,7 @@ class GameScene: SKScene {
         dummyGround.position = CGPointMake(0, groundTexture.size().height / 2)
         dummyGround.physicsBody = SKPhysicsBody(rectangleOfSize: CGSizeMake(self.frame.size.width, groundTexture.size().height))
         dummyGround.physicsBody.dynamic = false
+        dummyGround.physicsBody.categoryBitMask = worldCategory
         self.addChild(dummyGround)
     }
     
@@ -132,12 +142,16 @@ class GameScene: SKScene {
         pipe1.position = CGPointMake(0.0, CGFloat(y))
         pipe1.physicsBody = SKPhysicsBody(rectangleOfSize: pipe1.size)
         pipe1.physicsBody.dynamic = false
+        pipe1.physicsBody.categoryBitMask = pipeCategory
+        pipe1.physicsBody.contactTestBitMask = birdCategory
         pipePair.addChild(pipe1)
         
         var pipe2 = SKSpriteNode(texture: pipeTexture2)
         pipe2.position = CGPointMake(0.0, CGFloat(y) + pipe1.size.height + CGFloat(verticalPipeGap))
         pipe2.physicsBody = SKPhysicsBody(rectangleOfSize: pipe2.size)
         pipe2.physicsBody.dynamic = false
+        pipe2.physicsBody.categoryBitMask = pipeCategory
+        pipe2.physicsBody.contactTestBitMask = birdCategory
         pipePair.addChild(pipe2)
         
         pipePair.runAction(movePipesAndRemove)
@@ -157,5 +171,27 @@ class GameScene: SKScene {
    
     override func update(currentTime: CFTimeInterval) {
         bird.zRotation = self.clamp(-1, max: 0.5, value: bird.physicsBody.velocity.dy * (bird.physicsBody.velocity.dy < 0 ? 0.003 : 0.001))
+    }
+    
+    func didBeginContact(contact: SKPhysicsContact!) {
+        self.removeActionForKey("flash")
+        var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
+        
+        var wait = SKAction.waitForDuration(0.05)
+        var turnBackgroundWhite = SKAction.runBlock({() in self.setBackgroundWhite()})
+        
+        var turnBackgroundSky = SKAction.runBlock({() in self.setupSky()})
+        
+        var sequence = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
+        
+        self.runAction(sequence, withKey: "flash")
+    }
+    
+    func setBackgroundRed() {
+        self.backgroundColor = UIColor.redColor()
+    }
+    
+    func setBackgroundWhite() {
+        self.backgroundColor = UIColor.whiteColor()
     }
 }
