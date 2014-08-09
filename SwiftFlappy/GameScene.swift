@@ -23,6 +23,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let pipeCategory: UInt32 = 1 << 2
     
     var moving = SKNode()
+    var pipes = SKNode()
+    var canRestart = false
     
     override func didMoveToView(view: SKView) {
         setupMoving()
@@ -118,6 +120,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupPipes() {
+        moving.addChild(pipes)
+        
         pipeTexture1 = SKTexture(imageNamed: "Pipe1")
         pipeTexture1.filteringMode = .Nearest
         pipeTexture2 = SKTexture(imageNamed: "Pipe2")
@@ -162,16 +166,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pipePair.addChild(pipe2)
         
         pipePair.runAction(movePipesAndRemove)
-        moving.addChild(pipePair)
+        pipes.addChild(pipePair)
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
-        if moving.speed <= 0 {
-            return
+        if moving.speed > 0 {
+            bird.physicsBody.velocity = CGVectorMake(0, 0)
+            bird.physicsBody.applyImpulse(CGVectorMake(0, 8))
+        } else if canRestart {
+            self.resetScene()
         }
-        
-        bird.physicsBody.velocity = CGVectorMake(0, 0)
-        bird.physicsBody.applyImpulse(CGVectorMake(0, 8))
     }
     
     func clamp(min: CGFloat, max:CGFloat, value:CGFloat) -> CGFloat {
@@ -181,6 +185,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
    
     override func update(currentTime: CFTimeInterval) {
+        if moving.speed <= 0 {
+            return
+        }
+        
         bird.zRotation = self.clamp(-1, max: 0.5, value: bird.physicsBody.velocity.dy * (bird.physicsBody.velocity.dy < 0 ? 0.003 : 0.001))
     }
     
@@ -191,6 +199,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         moving.speed = 0
         
+        bird.physicsBody.collisionBitMask = worldCategory
+        
+        var rotateBird = SKAction.rotateByAngle(0.01, duration: 0.003)
+        var stopBird = SKAction.runBlock({ () in self.killBirdSpeed() })
+        var birdSequence = SKAction.sequence([rotateBird, stopBird])
+        bird.runAction(birdSequence)
+        
         self.removeActionForKey("flash")
         var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
         
@@ -200,8 +215,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var turnBackgroundSky = SKAction.runBlock({() in self.setupSky()})
         
         var sequence = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
+        var canRestartAction = SKAction.runBlock({() in self.letItRestart()})
+        var groupOfActions = SKAction.group([sequence, canRestartAction])
         
-        self.runAction(sequence, withKey: "flash")
+        self.runAction(groupOfActions, withKey: "flash")
+    }
+    
+    func killBirdSpeed() {
+        bird.speed = 0
+    }
+    
+    func letItRestart() {
+        canRestart = true
     }
     
     func setBackgroundRed() {
@@ -210,5 +235,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setBackgroundWhite() {
         self.backgroundColor = UIColor.whiteColor()
+    }
+    
+    func resetScene() {
+        bird.position = CGPoint(x: self.frame.size.width / 2.8, y: CGRectGetMidY(self.frame))
+        bird.physicsBody.velocity = CGVectorMake(0, 0)
+        bird.physicsBody.collisionBitMask = worldCategory | pipeCategory
+        bird.speed = 1.0
+        bird.zRotation = 0.0
+        
+        pipes.removeAllChildren()
+        
+        canRestart = false
+        
+        moving.speed = 1
     }
 }
