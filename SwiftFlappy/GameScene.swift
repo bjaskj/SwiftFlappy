@@ -11,8 +11,13 @@ import SpriteKit
 class GameScene: SKScene {
     
     var bird = SKSpriteNode()
+    var skyColor = SKColor()
     
     override func didMoveToView(view: SKView) {
+        
+        skyColor = SKColor(red: 113.0/255.0, green: 197.0/255.0, blue: 207.0/255.0, alpha: 1.0)
+        self.backgroundColor = skyColor
+        
         var birdTexture1 = SKTexture(imageNamed: "Bird1")
         birdTexture1.filteringMode = .Nearest
         var birdTexture2 = SKTexture(imageNamed: "Bird2")
@@ -26,6 +31,26 @@ class GameScene: SKScene {
         bird.runAction(flap)
         
         self.addChild(bird)
+        
+        var groundTexture = SKTexture(imageNamed: "Ground")
+        groundTexture.filteringMode = .Nearest
+        
+        for var i:CGFloat = 0; i < 2 + self.frame.size.width / (groundTexture.size().width); ++i {
+            var sprite = SKSpriteNode(texture: groundTexture)
+            sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2)
+            self.addChild(sprite)
+        }
+        
+        var skylineTexture = SKTexture(imageNamed: "Skyline")
+        skylineTexture.filteringMode = .Nearest
+        
+        for var i:CGFloat = 0; i < 2 + self.frame.size.width / (skylineTexture.size().width); ++i {
+            var sprite = SKSpriteNode(texture: skylineTexture)
+            sprite.zPosition = -20
+            sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2 + groundTexture.size().height)
+            self.addChild(sprite)
+        }
+            
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
