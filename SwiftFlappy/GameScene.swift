@@ -12,12 +12,21 @@ class GameScene: SKScene {
     
     var bird = SKSpriteNode()
     var skyColor = SKColor()
+    var groundTextureHeight = CGFloat()
     
     override func didMoveToView(view: SKView) {
-        
+        setupSky()
+        setupBird()
+        setupGround()
+        setupSkyline()
+    }
+    
+    func setupSky() {
         skyColor = SKColor(red: 113.0/255.0, green: 197.0/255.0, blue: 207.0/255.0, alpha: 1.0)
         self.backgroundColor = skyColor
-        
+    }
+    
+    func setupBird() {
         var birdTexture1 = SKTexture(imageNamed: "Bird1")
         birdTexture1.filteringMode = .Nearest
         var birdTexture2 = SKTexture(imageNamed: "Bird2")
@@ -31,14 +40,15 @@ class GameScene: SKScene {
         bird.runAction(flap)
         
         self.addChild(bird)
-        
-        // ground
-        
+    }
+    
+    func setupGround() {
         var groundTexture = SKTexture(imageNamed: "Ground")
         groundTexture.filteringMode = .Nearest
+        groundTextureHeight = groundTexture.size().height
         
         var moveGroundSprite = SKAction.moveByX(-groundTexture.size().width, y: 0, duration: NSTimeInterval(0.01 * groundTexture.size().width))
-            
+        
         var resetGroundSprite = SKAction.moveByX(groundTexture.size().width, y: 0, duration: 0.0)
         
         var moveGroundSpritesForever = SKAction.repeatActionForever(SKAction.sequence([moveGroundSprite, resetGroundSprite]))
@@ -49,9 +59,9 @@ class GameScene: SKScene {
             sprite.runAction(moveGroundSpritesForever)
             self.addChild(sprite)
         }
-        
-        // skyline
-        
+    }
+    
+    func setupSkyline() {
         var skylineTexture = SKTexture(imageNamed: "Skyline")
         skylineTexture.filteringMode = .Nearest
         
@@ -64,11 +74,10 @@ class GameScene: SKScene {
         for var i:CGFloat = 0; i < 2 + self.frame.size.width / (skylineTexture.size().width); ++i {
             var sprite = SKSpriteNode(texture: skylineTexture)
             sprite.zPosition = -20
-            sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2 + groundTexture.size().height)
+            sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2 + groundTextureHeight)
             sprite.runAction(moveSkylineSpritesForever)
             self.addChild(sprite)
         }
-            
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
