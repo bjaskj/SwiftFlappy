@@ -21,10 +21,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let birdCategory: UInt32 = 1 << 0
     let worldCategory: UInt32 = 1 << 1
     let pipeCategory: UInt32 = 1 << 2
+    let scoreCategory: UInt32 = 1 << 3
     
     var moving = SKNode()
     var pipes = SKNode()
     var canRestart = false
+    
+    var scoreLabelNode = SKLabelNode()
+    var score = NSInteger()
     
     override func didMoveToView(view: SKView) {
         setupMoving()
@@ -34,6 +38,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupGround()
         setupSkyline()
         setupPipes()
+        setupScore()
     }
     
     func setupMoving() {
@@ -165,6 +170,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pipe2.physicsBody.contactTestBitMask = birdCategory
         pipePair.addChild(pipe2)
         
+        var contactNode = SKNode()
+        contactNode.position = CGPointMake(pipe1.size.width + bird.size.width / 2, CGRectGetMidY(self.frame))
+        
+        contactNode.physicsBody = SKPhysicsBody(rectangleOfSize: CGSizeMake(pipe1.size.width, self.frame.size.height))
+        
+        contactNode.physicsBody.dynamic = false
+        contactNode.physicsBody.categoryBitMask = scoreCategory
+        contactNode.physicsBody.contactTestBitMask = birdCategory
+        
+        pipePair.addChild(contactNode)
+        
         pipePair.runAction(movePipesAndRemove)
         pipes.addChild(pipePair)
     }
@@ -194,6 +210,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBeginContact(contact: SKPhysicsContact!) {
         if moving.speed <= 0 {
+            return
+        }
+        
+        if contact.bodyA.categoryBitMask & scoreCategory == scoreCategory || contact.bodyB.categoryBitMask & scoreCategory == scoreCategory
+        {
+            score++
+            scoreLabelNode.text = "\(score)"
             return
         }
         
@@ -238,6 +261,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resetScene() {
+        score = 0
+        scoreLabelNode.text = "\(score)"
         bird.position = CGPoint(x: self.frame.size.width / 2.8, y: CGRectGetMidY(self.frame))
         bird.physicsBody.velocity = CGVectorMake(0, 0)
         bird.physicsBody.collisionBitMask = worldCategory | pipeCategory
@@ -249,5 +274,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         canRestart = false
         
         moving.speed = 1
+    }
+    
+    func setupScore() {
+        score = 0
+        scoreLabelNode.fontName = "Helvetica-Bold"
+        scoreLabelNode.position = CGPointMake(CGRectGetMidX(self.frame), self.frame.height / 6)
+        scoreLabelNode.fontSize = 600
+        scoreLabelNode.alpha = 0.2
+        scoreLabelNode.zPosition = -30
+        scoreLabelNode.text = "\(score)"
+        self.addChild(scoreLabelNode)
     }
 }
