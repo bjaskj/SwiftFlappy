@@ -14,6 +14,7 @@
 		D4FF90A2199623270019CD62 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4FF90A0199623270019CD62 /* Main.storyboard */; };
 		D4FF90A4199623270019CD62 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4FF90A3199623270019CD62 /* Images.xcassets */; };
 		D4FF90B0199623270019CD62 /* SwiftFlappyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4FF90AF199623270019CD62 /* SwiftFlappyTests.swift */; };
+		D4FF90BA199625230019CD62 /* MyResources.atlas in Resources */ = {isa = PBXBuildFile; fileRef = D4FF90B9199625230019CD62 /* MyResources.atlas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		D4FF90A9199623270019CD62 /* SwiftFlappyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftFlappyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4FF90AE199623270019CD62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D4FF90AF199623270019CD62 /* SwiftFlappyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftFlappyTests.swift; sourceTree = "<group>"; };
+		D4FF90B9199625230019CD62 /* MyResources.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = MyResources.atlas; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 		D4FF9095199623260019CD62 /* SwiftFlappy */ = {
 			isa = PBXGroup;
 			children = (
+				D4FF90B9199625230019CD62 /* MyResources.atlas */,
 				D4FF9098199623270019CD62 /* AppDelegate.swift */,
 				D4FF909A199623270019CD62 /* GameScene.sks */,
 				D4FF909C199623270019CD62 /* GameScene.swift */,
@@ -196,6 +199,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D4FF90A4199623270019CD62 /* Images.xcassets in Resources */,
+				D4FF90BA199625230019CD62 /* MyResources.atlas in Resources */,
 				D4FF909B199623270019CD62 /* GameScene.sks in Resources */,
 				D4FF90A2199623270019CD62 /* Main.storyboard in Resources */,
 			);
@@ -335,6 +339,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = SwiftFlappy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -346,6 +351,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = SwiftFlappy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
