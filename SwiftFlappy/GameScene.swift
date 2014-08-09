@@ -22,13 +22,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let worldCategory: UInt32 = 1 << 1
     let pipeCategory: UInt32 = 1 << 2
     
+    var moving = SKNode()
+    
     override func didMoveToView(view: SKView) {
+        setupMoving()
         setupGravity()
         setupSky()
         setupBird()
         setupGround()
         setupSkyline()
         setupPipes()
+    }
+    
+    func setupMoving() {
+        self.addChild(moving)
     }
     
     func setupGravity() {
@@ -62,7 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bird.physicsBody.collisionBitMask = worldCategory | pipeCategory
         bird.physicsBody.contactTestBitMask = worldCategory | pipeCategory
         
-        self.addChild(bird)
+        moving.addChild(bird)
     }
     
     func setupGround() {
@@ -80,7 +87,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             var sprite = SKSpriteNode(texture: groundTexture)
             sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2)
             sprite.runAction(moveGroundSpritesForever)
-            self.addChild(sprite)
+            moving.addChild(sprite)
         }
         
         var dummyGround = SKNode()
@@ -88,7 +95,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         dummyGround.physicsBody = SKPhysicsBody(rectangleOfSize: CGSizeMake(self.frame.size.width, groundTexture.size().height))
         dummyGround.physicsBody.dynamic = false
         dummyGround.physicsBody.categoryBitMask = worldCategory
-        self.addChild(dummyGround)
+        moving.addChild(dummyGround)
     }
     
     func setupSkyline() {
@@ -106,7 +113,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.zPosition = -20
             sprite.position = CGPointMake(i * sprite.size.width, sprite.size.height / 2 + groundTextureHeight)
             sprite.runAction(moveSkylineSpritesForever)
-            self.addChild(sprite)
+            moving.addChild(sprite)
         }
     }
     
@@ -155,10 +162,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pipePair.addChild(pipe2)
         
         pipePair.runAction(movePipesAndRemove)
-        self.addChild(pipePair)
+        moving.addChild(pipePair)
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+        if moving.speed <= 0 {
+            return
+        }
+        
         bird.physicsBody.velocity = CGVectorMake(0, 0)
         bird.physicsBody.applyImpulse(CGVectorMake(0, 8))
     }
@@ -174,6 +185,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBeginContact(contact: SKPhysicsContact!) {
+        if moving.speed <= 0 {
+            return
+        }
+        
+        moving.speed = 0
+        
         self.removeActionForKey("flash")
         var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
         
