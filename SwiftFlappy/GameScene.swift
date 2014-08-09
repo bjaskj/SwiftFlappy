@@ -14,6 +14,9 @@ class GameScene: SKScene {
     var skyColor = SKColor()
     var groundTextureHeight = CGFloat()
     var verticalPipeGap = 130.0
+    var pipeTexture1 = SKTexture()
+    var pipeTexture2 = SKTexture()
+    var movePipesAndRemove = SKAction()
     
     override func didMoveToView(view: SKView) {
         setupGravity()
@@ -98,9 +101,24 @@ class GameScene: SKScene {
     }
     
     func setupPipes() {
-        var pipeTexture1 = SKTexture(imageNamed: "Pipe1")
+        pipeTexture1 = SKTexture(imageNamed: "Pipe1")
         pipeTexture1.filteringMode = .Nearest
-        var pipeTexture2 = SKTexture(imageNamed: "Pipe2")
+        pipeTexture2 = SKTexture(imageNamed: "Pipe2")
+        
+        var distanceToMove = CGFloat(self.frame.size.width + 2.0 * pipeTexture1.size().width)
+        var movePipes = SKAction.moveByX(-distanceToMove, y: 0.0, duration: NSTimeInterval(0.01 * distanceToMove))
+        
+        var removePipes = SKAction.removeFromParent()
+        movePipesAndRemove = SKAction.sequence([movePipes, removePipes])
+        
+        var spawn = SKAction.runBlock({ () in self.spawnPipes() })
+        var delay = SKAction.waitForDuration(NSTimeInterval(2.0))
+        var spawnThenDelay = SKAction.sequence([spawn, delay])
+        var spawnThenDelayForEver = SKAction.repeatActionForever(spawnThenDelay)
+        self.runAction(spawnThenDelayForEver)
+    }
+    
+    func spawnPipes() {
         pipeTexture2.filteringMode = .Nearest
         
         var pipePair = SKNode()
@@ -122,10 +140,7 @@ class GameScene: SKScene {
         pipe2.physicsBody.dynamic = false
         pipePair.addChild(pipe2)
         
-        var distanceToMove = CGFloat(self.frame.size.width + 2.0 * pipeTexture1.size().width)
-        var movePipes = SKAction.moveByX(-distanceToMove, y: 0.0, duration: NSTimeInterval(0.01 * distanceToMove))
-        
-        pipePair.runAction(movePipes)
+        pipePair.runAction(movePipesAndRemove)
         self.addChild(pipePair)
     }
     
