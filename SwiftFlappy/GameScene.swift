@@ -272,10 +272,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setupScore() {
         score = 0
         scoreLabelNode.fontName = "Helvetica-Bold"
-        scoreLabelNode.position = CGPointMake(CGRectGetMidX(self.frame), self.frame.height / 6)
-        scoreLabelNode.fontSize = 600
+        scoreLabelNode.position = CGPointMake(CGRectGetMidX(self.frame), self.frame.height / 5)
+        scoreLabelNode.fontSize = 250
         scoreLabelNode.alpha = 0.2
-        scoreLabelNode.zPosition = -30
+        scoreLabelNode.zPosition = -50
         scoreLabelNode.text = "\(score)"
         self.addChild(scoreLabelNode)
     }
